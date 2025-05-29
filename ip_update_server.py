@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 import os
 import re
+import json
 from config import SERVER_CONFIG
 
 # 初始化 Flask 应用
@@ -18,12 +19,8 @@ logging.basicConfig(
     ]
 )
 
-# 内存中保存最新 IP 和服务器信息
-latest_data = {
-    'ip': None,
-    'server_name': None,
-    'timestamp': None
-}
+# 内存中保存所有服务器的 IP 信息
+server_records = {}
 
 def is_valid_ip(ip):
     """验证IP地址格式是否正确"""
@@ -35,10 +32,23 @@ def is_valid_ip(ip):
     numbers = ip.split('.')
     return all(0 <= int(n) <= 255 for n in numbers)
 
+def save_records_to_file():
+    """保存所有记录到文件"""
+    with open('latest_ip.txt', 'w', encoding='utf-8') as f:
+        json.dump(server_records, f, indent=4, ensure_ascii=False)
+
+def load_records_from_file():
+    """从文件加载记录"""
+    global server_records
+    if os.path.exists('latest_ip.txt'):
+        try:
+            with open('latest_ip.txt', 'r', encoding='utf-8') as f:
+                server_records = json.load(f)
+        except json.JSONDecodeError:
+            logging.error("无法读取记录文件，将使用空记录")
+
 @app.route('/api/update_ip', methods=['POST'])
 def update_ip():
-    global latest_data
-    
     # 验证API密钥
     auth_header = request.headers.get('X-API-Key')
     if not auth_header or auth_header != SERVER_CONFIG['API_KEY']:
@@ -58,19 +68,17 @@ def update_ip():
         logging.warning(f'收到无效的IP地址格式: {ip}')
         return jsonify({'error': '无效的IP地址格式'}), 400
 
-    # 记录到日志
-    logging.info(f'接收到 IP 更新：服务器 {server_name} 的IP为 {ip}')
-
-    # 更新内存中的数据
-    latest_data = {
+    # 更新记录
+    server_records[server_name] = {
         'ip': ip,
-        'server_name': server_name,
         'timestamp': timestamp
     }
 
-    # 写入文件
-    with open('latest_ip.txt', 'w') as f:
-        f.write(f'{server_name},{ip},{timestamp}')
+    # 记录到日志
+    logging.info(f'接收到 IP 更新：服务器 {server_name} 的IP为 {ip}')
+
+    # 保存到文件
+    save_records_to_file()
 
     # 返回给客户端
     return jsonify({
@@ -83,14 +91,29 @@ def update_ip():
 @app.route('/api/latest_ip', methods=['GET'])
 def get_latest_ip():
     """提供一个查询最新 IP 的接口"""
-    if latest_data['ip'] is None:
-        return jsonify({'error': '尚未收到任何 IP 更新'}), 404
-    return jsonify(latest_data), 200
+    server_name = request.args.get('server_name')
+    
+    if server_name:
+        # 查询特定服务器的IP
+        if server_name not in server_records:
+            return jsonify({'error': f'未找到服务器 {server_name} 的记录'}), 404
+        return jsonify({
+            'server_name': server_name,
+            **server_records[server_name]
+        }), 200
+    else:
+        # 返回所有服务器的记录
+        if not server_records:
+            return jsonify({'error': '尚未收到任何 IP 更新'}), 404
+        return jsonify(server_records), 200
 
 if __name__ == '__main__':
     # 确保日志文件存在
     if not os.path.exists(SERVER_CONFIG['LOG_FILE']):
         open(SERVER_CONFIG['LOG_FILE'], 'a').close()
+
+    # 加载已有记录
+    load_records_from_file()
 
     # 打印API密钥（仅用于开发环境）
     print(f'API密钥: {SERVER_CONFIG["API_KEY"]}')

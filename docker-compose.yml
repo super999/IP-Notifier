@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  ip-update-server:
+    build: .
+    container_name: ip-update-server
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./logs:/app/logs
+      - ./latest_ip.txt:/app/latest_ip.txt
+      - ./ip_notifier_config.json:/app/ip_notifier_config.json
+    environment:
+      - IP_NOTIFIER_API_KEY=${IP_NOTIFIER_API_KEY:-}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/latest_ip"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
