@@ -2,7 +2,9 @@ import time
 import requests
 import socket
 import os
+
 from config import CLIENT_CONFIG
+
 
 # 获取公网 IP（使用 ipify 服务）
 def get_public_ip():

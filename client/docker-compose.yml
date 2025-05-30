@@ -5,6 +5,8 @@ services:
     build: .
     container_name: ip-notifier-client
     volumes:
+      - ./ip_notifier.py:/app/ip_notifier.py
+      - ./config.py:/app/config.py
       - ./ip_notifier_config.json:/app/ip_notifier_config.json
     environment:
       - IP_NOTIFIER_API_KEY=${IP_NOTIFIER_API_KEY:-}

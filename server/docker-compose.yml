@@ -7,9 +7,11 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./logs:/app/logs
-      - ./latest_ip.txt:/app/latest_ip.txt
+      - ./ip_update_server.py:/app/ip_update_server.py
+      - ./config.py:/app/config.py
       - ./ip_notifier_config.json:/app/ip_notifier_config.json
+      - ./latest_ip.txt:/app/latest_ip.txt
+      - ./ip_updates.log:/app/ip_updates.log
     environment:
       - IP_NOTIFIER_API_KEY=${IP_NOTIFIER_API_KEY:-}
     restart: unless-stopped
