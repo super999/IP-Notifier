@@ -2,6 +2,7 @@ import time
 import requests
 import socket
 import os
+import logging
 
 from config import CLIENT_CONFIG
 
@@ -32,6 +33,9 @@ def notify_ip(ip: str):
         print(f'[{time.strftime("%Y-%m-%d %H:%M:%S")}] 通知失败：{e}')
 
 def main():
+    # 初始化日志
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
     # 检查API密钥是否已配置
     if not CLIENT_CONFIG['API_KEY']:
         print("错误：请先设置环境变量 IP_NOTIFIER_API_KEY")
@@ -40,6 +44,7 @@ def main():
 
     last_ip = None
     server_name = CLIENT_CONFIG['SERVER_NAME'] or socket.gethostname()
+    logging.info(f'CLIENT_CONFIG: {CLIENT_CONFIG}, socket.gethostname(): {server_name}')
     print(f'开始监控服务器 {server_name} 的IP变化...')
     
     while True:

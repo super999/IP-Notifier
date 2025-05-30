@@ -51,3 +51,5 @@ log/
 .env.development.local
 .env.test.local
 .env.production.local 
+/不提交文件.txt
+*.bak

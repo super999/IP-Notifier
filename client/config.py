@@ -10,6 +10,8 @@ def load_or_create_config():
     if os.path.exists(CONFIG_FILE):
         try:
             with open(CONFIG_FILE, 'r') as f:
+                print(f'加载配置文件：{CONFIG_FILE}')
+                # print(f'读取内容：{f.read()}')
                 return json.load(f)
         except json.JSONDecodeError:
             print(f"警告：配置文件 {CONFIG_FILE} 格式错误，将创建新的配置")
@@ -44,7 +46,7 @@ SERVER_CONFIG = {
 
 # 客户端配置
 CLIENT_CONFIG = {
-    'UPDATE_URL': 'http://127.0.0.1:5000/api/update_ip',  # 更新服务器地址
+    'UPDATE_URL': 'http://heijinga.com:5000/api/update_ip',  # 更新服务器地址
     'INTERVAL': 1,  # 检查间隔（秒）
     'TIMEOUT': 5,  # HTTP 请求超时时间（秒）
     'API_KEY': os.getenv('IP_NOTIFIER_API_KEY', config_data['api_key']),  # 优先使用环境变量，否则使用配置文件中的密钥

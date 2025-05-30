@@ -13,9 +13,4 @@ services:
       - IP_NOTIFIER_SERVER_NAME=${IP_NOTIFIER_SERVER_NAME:-}
       - UPDATE_URL=${UPDATE_URL:-http://server:5000/api/update_ip}
     restart: unless-stopped
-    networks:
-      - ip-notifier-network
-
-networks:
-  ip-notifier-network:
-    external: true 
+    network_mode: host

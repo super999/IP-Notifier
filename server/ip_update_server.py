@@ -4,7 +4,7 @@ from datetime import datetime
 import os
 import re
 import json
-
+from flask_cors import CORS
 
 import sys
 print(sys.path)
@@ -13,6 +13,7 @@ from config import SERVER_CONFIG
 
 # 初始化 Flask 应用
 app = Flask(__name__)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # 配置 logging：追加写入，并打印时间戳
 logging.basicConfig(

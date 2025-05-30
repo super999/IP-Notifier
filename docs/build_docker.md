@@ -45,7 +45,10 @@
 
 4. 重新构建并启动：
     ```bash
+    # 1
     docker-compose up --build -d
+    # 2
+    docker-compose up -d --build
     ```
 5. 检查 docker-compose 版本：
     ```bash
