@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  ip-notifier-client:
+    build: .
+    container_name: ip-notifier-client
+    volumes:
+      - ./ip_notifier_config.json:/app/ip_notifier_config.json
+    environment:
+      - IP_NOTIFIER_API_KEY=${IP_NOTIFIER_API_KEY:-}
+      - IP_NOTIFIER_SERVER_NAME=${IP_NOTIFIER_SERVER_NAME:-}
+      - UPDATE_URL=${UPDATE_URL:-http://server:5000/api/update_ip}
+    restart: unless-stopped
+    networks:
+      - ip-notifier-network
+
+networks:
+  ip-notifier-network:
+    external: true 
