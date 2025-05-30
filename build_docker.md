@@ -35,7 +35,7 @@
 
 2. 查看日志：
     ```bash
-    docker-compose down
+    docker-compose logs -f
     ```
 
 3. 停止服务：
